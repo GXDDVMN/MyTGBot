@@ -3,6 +3,7 @@ package com.drobov.mytgbot.nasa_api;
 import com.drobov.mytgbot.config.NasaConfig;
 import com.drobov.mytgbot.model.location_photo.PhotoLocation;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
@@ -10,6 +11,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.time.Duration;
 import java.time.LocalDate;
 
 @Component
@@ -20,23 +22,33 @@ public class NasaGetLocationPhoto {
     public NasaGetLocationPhoto(NasaConfig nasaConfig) {
         this.nasaConfig = nasaConfig;
     }
-    public PhotoLocation getPhotoLocation(String lat, String lon, LocalDate date){
+
+    public PhotoLocation getPhotoLocation(String lat, String lon, LocalDate date) {
         String url = nasaConfig.getUrl() + "/planetary/earth/assets";
-        RestTemplate restTemplate = new RestTemplate();
+        //RestTemplate restTemplate = new RestTemplate();
+        RestTemplate restTemplate2 = new RestTemplateBuilder()
+                .setConnectTimeout(Duration.ofSeconds(10))
+                .setReadTimeout(Duration.ofSeconds(10))
+                .build();
         UriComponents builder = UriComponentsBuilder.fromHttpUrl(url)
                 .queryParam("lon", lon)
-                .queryParam("lat",lat)
+                .queryParam("lat", lat)
                 .queryParam("date", date.toString())
                 .queryParam("dim", 0.2)
                 .queryParam("api_key", nasaConfig.getToken())
                 .build();
-        ResponseEntity<PhotoLocation> response=null;
+        ResponseEntity<PhotoLocation> response = null;
         try {
-            response = restTemplate.getForEntity(builder.toUriString(), PhotoLocation.class);
-        }catch (HttpClientErrorException e){
+            try {
+                response = restTemplate2.getForEntity(builder.toUriString(), PhotoLocation.class);
+            }catch(HttpClientErrorException e){
+                log.error(e);
+            }
+            if (response == null) return getPhotoLocation(lat, lon, date.minusMonths(6));
+            return response.getBody();
+        } catch (Exception e) {
             log.error(e);
+            return null;
         }
-        if(response==null) return getPhotoLocation(lat, lon, date.minusMonths(6));
-        return response.getBody();
     }
 }

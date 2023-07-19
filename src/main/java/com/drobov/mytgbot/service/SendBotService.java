@@ -56,7 +56,7 @@ public class SendBotService{
     public void sendErrorMessage(long chatId){
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(chatId);
-        sendMessage.setText("Unexpected error. Please try again later");
+        sendMessage.setText("Unexpected error. Please try again later. May be server is unavailable");
         try {
             bot.execute(sendMessage);
         }catch (TelegramApiException e){

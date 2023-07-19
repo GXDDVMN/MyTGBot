@@ -10,6 +10,8 @@ import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import javax.validation.constraints.Null;
+
 @Service
 @Log4j2
 public class PhotoOfDayService {
@@ -22,11 +24,17 @@ public class PhotoOfDayService {
         this.nasaGetPhotoOfDay = nasaGetPhotoOfDay;
     }
 
-    private SendPhoto getPhotoOfDay(long chatId) {
+    private SendPhoto getPhotoOfDay(long chatId) throws NullPointerException {
         PhotoNasa response = nasaGetPhotoOfDay.getPhotoOfTheDay();
-        String caption = response.getExplanation().substring(0,800);
+        String caption = null;
+        try {
+            caption = response.getExplanation().substring(0, 800);
+        } catch (Exception e) {
+            log.error(e);
+        }
+        if (caption == null) return null;
         caption = ("<b><u>" + response.getTitle() + "</u></b>\n"
-                + caption.substring(0,caption.lastIndexOf('.')) + "\n<a href=\""
+                + caption.substring(0, caption.lastIndexOf('.')) + "\n<a href=\""
                 + response.getHdurl() + "\">HD resolution</a>");
         SendPhoto reply = SendPhoto.builder()
                 .parseMode("HTML")
@@ -38,13 +46,18 @@ public class PhotoOfDayService {
     }
 
     public void sendPhotoOfTheDay(CallbackQuery callbackQuery) {
-        try {
-            sendBotService.sendMessage(getPhotoOfDay(callbackQuery.getMessage().getChatId()));
-            sendBotService.sendAnswerCallback(callbackQuery.getId(), "Success");
-            log.info("success sending photo of the day to ChatID: "+callbackQuery.getMessage().getChat().getId());
-        } catch (TelegramApiException e) {
-            log.error("failed to send photo of the day",e);
-            sendBotService.sendErrorMessage(callbackQuery.getMessage().getChatId());
+        SendPhoto sendPhoto = getPhotoOfDay(callbackQuery.getMessage().getChatId());
+        if (sendPhoto == null) {sendBotService.sendErrorMessage(callbackQuery.getMessage().getChatId());
+            sendBotService.sendAnswerCallback(callbackQuery.getId(), "Failure");}
+        else {
+            try {
+                sendBotService.sendMessage(sendPhoto);
+                sendBotService.sendAnswerCallback(callbackQuery.getId(), "Success");
+                log.info("success sending photo of the day to ChatID: " + callbackQuery.getMessage().getChat().getId());
+            } catch (TelegramApiException e) {
+                log.error("failed to send photo of the day", e);
+                sendBotService.sendErrorMessage(callbackQuery.getMessage().getChatId());
+            }
         }
     }
 }

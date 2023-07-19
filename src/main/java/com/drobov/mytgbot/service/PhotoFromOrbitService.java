@@ -72,7 +72,10 @@ public class PhotoFromOrbitService {
         String[] coords = getCoords(message);
         if (coords!=null){
             PhotoLocation response = nasaGetLocationPhoto.getPhotoLocation(coords[0],coords[1], LocalDate.now().minusYears(1));
-            sendLocationPhoto(message.getChatId(), response);
+            if (response==null) sendBotService.sendErrorMessage(message.getChatId());
+            else {
+                sendLocationPhoto(message.getChatId(), response);
+            }
         }else sendIncorrectMessage(message.getChatId());
 
     }
