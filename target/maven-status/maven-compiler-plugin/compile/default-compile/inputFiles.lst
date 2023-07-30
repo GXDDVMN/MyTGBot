@@ -5,6 +5,7 @@ S:\Projects\my_project\my_tg_bot webhook\MyTGBot\src\main\java\com\drobov\mytgbo
 S:\Projects\my_project\my_tg_bot webhook\MyTGBot\src\main\java\com\drobov\mytgbot\handler\MessageHandler.java
 S:\Projects\my_project\my_tg_bot webhook\MyTGBot\src\main\java\com\drobov\mytgbot\model\photo_of_day\PhotoNasa.java
 S:\Projects\my_project\my_tg_bot webhook\MyTGBot\src\main\java\com\drobov\mytgbot\service\PhotoFromTextService.java
+S:\Projects\my_project\my_tg_bot webhook\MyTGBot\src\main\java\com\drobov\mytgbot\ping_task\PingTask.java
 S:\Projects\my_project\my_tg_bot webhook\MyTGBot\src\main\java\com\drobov\mytgbot\model\media_for_text\PhotoItems.java
 S:\Projects\my_project\my_tg_bot webhook\MyTGBot\src\main\java\com\drobov\mytgbot\service\PhotoFromRoversService.java
 S:\Projects\my_project\my_tg_bot webhook\MyTGBot\src\main\java\com\drobov\mytgbot\model\location_photo\PhotoLocation.java
